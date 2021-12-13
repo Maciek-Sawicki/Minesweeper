@@ -1,0 +1,88 @@
+/* 
+#0511F2
+#020659
+#4B53F2
+#8D92F2
+#F2F2F2 
+*/
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+	background-color: #020659;
+}
+
+.game-wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.title {
+	font-size: 80px;
+	color: #f2f2f2;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	text-transform: uppercase;
+	font-weight: bold;
+}
+
+.wrapper {
+	display: grid;
+}
+
+.sizeSmall {
+	grid-template-columns: repeat(10, 50px);
+	grid-template-rows: repeat(10, 50px)
+}
+
+.sizeLarge {
+	grid-template-columns: repeat(15, 50px);
+	grid-template-rows: repeat(15, 50px)
+}
+
+.field {
+	width: 50px;
+	height: 50px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: #8D92F2;
+	border: 1px solid #020659;
+}
+
+.field i {
+	font-size: 30px;
+	color: white;
+}
+
+.btn {
+	background-color: #8D92F2;
+	padding: 5px 10px;
+	font-size: 26px;
+	/* border-radius: 15px; */
+	color: #f2f2f2;
+	border: none;
+	margin: 10px;
+	cursor: pointer;
+}
+
+header {
+	color: white;
+	font-size: 40px;
+	margin: 40px;
+	display: none;
+}
+
+header i,
+header span {
+	margin-right: 10px;
+}
