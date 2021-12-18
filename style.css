@@ -57,11 +57,17 @@ body {
 	align-items: center;
 	background-color: #8D92F2;
 	border: 1px solid #020659;
+	font-size: 24px;
+	font-weight: bold;
 }
 
 .field i {
 	font-size: 30px;
 	color: white;
+}
+
+.shown i {
+	color: #000;
 }
 
 .btn {
