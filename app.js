@@ -1,3 +1,12 @@
+//TODO
+//Naprawić miny żeby 2 razy nie losowały się te same
+//restart mapy 
+//timer
+//Odkrywanie sąsiednich pustych pól
+//style dla różnych rozmiarów plansz;
+
+
+
 const buttonGeneratorSmall = document.querySelector(".btnSmall"); 
 const buttonGeneratorLarge = document.querySelector(".btnLarge"); 
 const wrapper = document.querySelector(".wrapper");
@@ -5,36 +14,43 @@ const header = document.querySelector("header");
 const flagSpan = document.querySelector(".flag");
 const title = document.querySelector(".title");
 const timeSpan = document.querySelector(".time");
+const popup = document.querySelector(".popup");
+const tryAgain = document.querySelector(".tryAgain");
+
+let fieldsWithMines = [];
+let nearbyMines = [];
 
 let flags = 0;
-let fieldsWithMines = [];
-let nearbyMines = [
-	[0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0,0,0],
-];
-// let fields = [];
 let time = 0;
-let timer = false;
 
 
 const generateBoard = (size , numberOfFlags) => {
-	// clearInterval(startTimer);
 	title.style.display = "none";
 	wrapper.textContent = "";
+	if (size == 15) {
+		wrapper.classList.remove("sizeSmall");
+		wrapper.classList.add("sizeLarge");
+	}
+	else {
+		wrapper.classList.remove("sizeLarge");
+		wrapper.classList.add("sizeSmall");
+	}
+	// wrapper.classList.remove("sizeLarge");
+	// wrapper.classList.add("sizeSmall");
+
+	generateBoardFields(size);
+	generateBoardArray(size);
+
+	flags = numberOfFlags;
+	flagSpan.innerHTML = flags;
+	header.style.display = "block";
+	console.log(nearbyMines);
+}
+
+const generateBoardFields = (size) => {
 	const div = document.createElement("div");
-	div.classList.add("field");
-	div.classList.add("hidden");
+	div.classList.add("field", "hidden");
 	div.oncontextmenu="rightClick";
-	wrapper.classList.remove("sizeLarge");
-	wrapper.classList.add("sizeSmall");
 	for (let y = 0; y < size; y++) {
 		div.dataset.y = y;
 		for (let x = 0; x < size; x++) {
@@ -42,23 +58,65 @@ const generateBoard = (size , numberOfFlags) => {
 			wrapper.appendChild(div.cloneNode(true));
 		}
 	}
-	flags = numberOfFlags;
-	flagSpan.innerHTML = flags;
-	header.style.display = "block";
-	// checkMines();
-	console.log(nearbyMines);
 }
 
-const addToArray = () => {
+const generateBoardArray = (size) => {
+	for (let y = 0; y < size; y++) {
+		nearbyMines[y] = [];
+		for (let x = 0; x < size; x++) {
+			nearbyMines[y][x] = 0;
+		}
+	}
+}
+
+const addToArray = (size) => {
 	const fields = document.querySelectorAll(".field");
 	fields.forEach(field => {
 		if (nearbyMines[field.dataset.y][field.dataset.x] != -1) {
-			// checkNearbyMines(field.dataset.y, field.dataset.x);
-			// nearbyFields(field.dataset.y, field.dataset.x);
-			setNumbers();
+			setNumbersOnFields(size);
 		}
 	})
 	console.log()
+}
+
+const showField = (field) => {
+	field.classList.remove("hidden");
+	field.classList.add("shown");
+	field.style.background = "#f2f2f2";
+	if (nearbyMines[field.dataset.y][field.dataset.x] == 0) {
+		field.innerHTML = "";
+		
+	}
+	else if (nearbyMines[field.dataset.y][field.dataset.x] == -1) {
+		field.innerHTML = '<i class="fas fa-bomb"></i>';
+	}
+	else {
+		field.innerHTML = nearbyMines[field.dataset.y][field.dataset.x];
+	}
+}
+
+// export function revealTile(board, tile) {
+// 	if (tile.status !== TILE_STATUSES.HIDDEN) {
+// 	  return
+// 	}
+
+const showLoseScreen = () => {
+	popup.style.display = "flex";
+}
+
+const checkIfMineClicked = (field) => {
+	const fields = document.querySelectorAll(".field");
+	for (let index = 0; index < fieldsWithMines.length; index++) {
+		if ((field.dataset.x == fieldsWithMines[index][0]) && (field.dataset.y == fieldsWithMines[index][1])) {
+			fields.forEach(field => {
+				showField(field);
+			})
+			setTimeout(() => { showLoseScreen(); }, 1500);
+			tryAgain.addEventListener("click" , () => {
+				popup.style.display = "none";
+			})
+		}
+	}
 }
 
 const leftClick = () => {
@@ -72,27 +130,13 @@ const leftClick = () => {
 				field.classList.remove("marked");
 				field.innerHTML = "";
 				flagSpan.innerHTML = flags;
-
 			}
 			else {
-				field.classList.remove("hidden");
-				field.classList.add("shown");
-				field.style.background = "#f2f2f2";
-				if (nearbyMines[field.dataset.y][field.dataset.x] == 0) {
-					field.innerHTML = "";
-				}
-				else if (nearbyMines[field.dataset.y][field.dataset.x] == -1) {
-					field.innerHTML = '<i class="fas fa-bomb"></i>';
-				}
-				else {
-					field.innerHTML = nearbyMines[field.dataset.y][field.dataset.x];
-				}
-				console.log("x:", field.dataset.x, "y:",field.dataset.y);
-		}
-		}
-		)
+				showField(field);
+			}
+			setTimeout(() => { checkIfMineClicked(field) }, 500);
+		})
 	})
-
 }
 
 const rightClick = () => {
@@ -111,19 +155,31 @@ const rightClick = () => {
 }
 
 const startTimerOnce = () => {
-	if (!timer) setInterval(startTimer, 1000);
+	if (!timeToggle) timer();
 }
 
-const startTimer = () => {
-	timer = true;
-	time++;
-	timeSpan.innerHTML = time;
+// const startTimer = () => {
+// 	timer = true;
+// 	time++;
+// 	timeSpan.innerHTML = time;
+// }
+
+const timer = () => {
+	clearInterval();
+	timeToggle = false;
+	const start = Date.now();
+	setInterval(function() {
+    	let delta = Date.now() - start; // milliseconds elapsed since start
+    	timeSpan.innerHTML = Math.floor(delta / 1000); // in seconds
+}, 1000); // update about every second
 }
 
-const drawMines = (numberOfMines, boardSize) => {
+const drawMines = (boardSize, numberOfMines) => {
+	fieldsWithMines = [];
 	for (let index = 0; index < numberOfMines; index++) {
 		fieldsWithMines.push([Math.floor(Math.random() * boardSize), Math.floor(Math.random() * boardSize)]);	
 	}
+	console.log(fieldsWithMines);
 }
 
 const addMinesToArray = () => {
@@ -136,6 +192,94 @@ const addMinesToArray = () => {
 		}
 	})
 }
+
+const checkMines = () => {
+	const fields = document.querySelectorAll(".field");
+	fields.forEach(field => {
+		for (let index = 0; index < fieldsWithMines.length; index++) {
+			if ((field.dataset.x == fieldsWithMines[index][0]) && (field.dataset.y == fieldsWithMines[index][1])) {
+				field.innerHTML = '<i class="fas fa-bomb"></i>';
+			}
+		}
+	})
+}
+
+const nearbyFields = (x, y, size) => {
+    let tab = [];
+    // checking 8 nearby fields
+    for (let offsetX = -1; offsetX <= 1; offsetX++) {
+		for (let offsetY = -1; offsetY <= 1; offsetY++) {
+			if (offsetX + x < size && offsetY + y < size && offsetY + y >= 0 && offsetX + x >= 0) {
+				const field = {
+					x: offsetX + x,
+					y: offsetY + y,
+				};
+				tab.push(field);
+			}
+		}
+    }
+    return tab;
+}
+
+const setNumbersOnFields = (size) => {
+    for (let y = 0; y < size; y++) {
+		for (let x = 0; x < size; x++) {
+			if (nearbyMines[y][x] !== -1) {
+				let number = 0;
+				const Fields = nearbyFields(x, y, size);
+				Fields.forEach((field) => {
+					if (nearbyMines[field.y]?.[field.x] === -1) number++;
+				});
+				nearbyMines[y][x] = number;
+			}
+		}
+	}
+}
+
+const addListeners = (button, size, numberOfFlags) => {
+	button.addEventListener("click", () => generateBoard(size, numberOfFlags));
+	button.addEventListener("click", () => drawMines(size, numberOfFlags));
+	button.addEventListener("click", addMinesToArray);
+	button.addEventListener("click", () => addToArray(size));
+
+	button.addEventListener("click", leftClick);
+	button.addEventListener("click", rightClick);
+}
+
+const addAnimations = (button) => {
+	button.addEventListener("click", () => {
+		TweenMax.staggerFrom(".wrapper div", 1, {
+			delay: .2, opacity: 0, y: 20, ease: Expo.easeInOut
+		}, 0.005)
+	})
+}
+
+addListeners(buttonGeneratorSmall, 10, 10);
+addListeners(tryAgain, 10, 10);
+
+addListeners(buttonGeneratorLarge, 15, 20);
+
+addAnimations(buttonGeneratorSmall);
+addAnimations(tryAgain);
+addAnimations(buttonGeneratorLarge);
+
+
+
+
+
+
+
+// buttonGeneratorSmall.addEventListener("click", () => generateBoard(10, 10));
+// buttonGeneratorSmall.addEventListener("click", () => drawMines(10,10));
+// buttonGeneratorSmall.addEventListener("click", addMinesToArray);
+// buttonGeneratorSmall.addEventListener("click", addToArray);
+
+// buttonGeneratorSmall.addEventListener("click", leftClick);
+// buttonGeneratorSmall.addEventListener("click", rightClick);
+
+
+
+
 
 // const checkMines = () => {
 // 	const fields = document.querySelectorAll(".field");
@@ -150,78 +294,6 @@ const addMinesToArray = () => {
 // 		})
 // 	}) 
 // }
-
-const checkMines = () => {
-	const fields = document.querySelectorAll(".field");
-	fields.forEach(field => {
-		for (let index = 0; index < fieldsWithMines.length; index++) {
-			if ((field.dataset.x == fieldsWithMines[index][0]) && (field.dataset.y == fieldsWithMines[index][1])) {
-				field.innerHTML = '<i class="fas fa-bomb"></i>';
-				// nearbyMines[field.dataset.x][field.dataset.y] = -1;
-			}
-		}
-	})
-}
-
-const nearbyFields = (x, y) => {
-    let tab = [];
-    // checking 8 nearby fields
-    for (let offsetX = -1; offsetX <= 1; offsetX++) {
-		for (let offsetY = -1; offsetY <= 1; offsetY++) {
-				if (
-				offsetX + x < 10 &&
-				offsetY + y < 10 &&
-				offsetY + y >= 0 &&
-				offsetX + x >= 0 
-				) {
-				const field = {
-					x: offsetX + x,
-					y: offsetY + y,
-				};
-
-				tab.push(field);
-				}
-			}
-    }
-    return tab;
-}
-
-const setNumbers = () => {
-    for (let y = 0; y < 10; y++) {
-		for (let x = 0; x < 10; x++) {
-			if (nearbyMines[y][x] !== -1) {
-			let number = 0;
-			const Fields = nearbyFields(x, y);
-			Fields.forEach((elem) => {
-				if (nearbyMines[elem.y]?.[elem.x] === -1) number++;
-			});
-			nearbyMines[y][x] = number;
-			}
-		}
-		}
-}
-
-
-
-
-
-buttonGeneratorSmall.addEventListener("click", () => generateBoard(10, 10));
-buttonGeneratorSmall.addEventListener("click", () => drawMines(10,10));
-buttonGeneratorSmall.addEventListener("click", addMinesToArray);
-buttonGeneratorSmall.addEventListener("click", addToArray);
-
-buttonGeneratorSmall.addEventListener("click", leftClick);
-buttonGeneratorSmall.addEventListener("click", rightClick);
-
-
-//TODO
-//Naprawić miny żeby 2 razy nie losowały się te same
-//miny w pobliżu
-//restart mapy 
-//timer
-//tablica nearbyMines generowana
-//Odkrywanie sąsiednich pustych pól
-
 
 // const checkNearbyMines = (x, y) => {
 // 	let mines = 0;

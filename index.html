@@ -13,15 +13,31 @@
 
 <body>
 	<span class="title">Minesweeper</span>
+	<span class="author">Maciej Sawicki</span>
 	<button class="btn btnSmall">Small</button>
 	<button class="btn btnLarge">Large</button>
 	<div class="game-wrapper">
 		<header><i class="fas fa-flag"></i><span class="flag">10</span><i class="far fa-clock"></i><span
 				class="time">00</span>
 		</header>
-		<div class="wrapper">
+		<div class="endgame">
+			<div class="wrapper">
+			</div>
 		</div>
 	</div>
+
+	<div class="popup">
+		<span class="helper"></span>
+		<div>
+			<div class="lost">You lost!</div>
+			<button class="btn tryAgain">Try Again</button>
+		</div>
+	</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.0/gsap.min.js"
+		integrity="sha512-2fk3Q4NXPYAqIha0glLZ2nluueK43aNoxvijPf53+DgL7UW9mkN+uXc1aEmnZdkkZVvtJZltpRt+JqTWc3TS3Q=="
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.2/TweenMax.min.js"></script>
 	<script src="app.js"></script>
 </body>
 
