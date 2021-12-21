@@ -106,7 +106,7 @@ header span {
 }
 
 /* Popup box BEGIN */
-.popup {
+.popup-lost {
 	background: rgba(2, 6, 89, 0.6);
 	/* cursor: pointer; */
 	display: none;
@@ -120,7 +120,7 @@ header span {
 	z-index: 10000;
 }
 
-.popup .helper {
+.popup-lost .helper {
 	/* display: inline-block; */
 	height: 100%;
 	vertical-align: middle;
@@ -132,7 +132,7 @@ header span {
 #8D92F2
 #F2F2F2  */
 
-.popup>div {
+.popup-lost>div {
 	background-color: #8D92F2;
 	/* box-shadow: 10px 10px 60px #555; */
 	display: flex;
@@ -154,7 +154,7 @@ header span {
 	font-size: 40px;
 }
 
-.popup .btn {
+.popup-lost .btn {
 	background-color: #020659;
 }
 

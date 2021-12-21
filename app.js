@@ -1,11 +1,14 @@
 //TODO
-//Naprawić miny żeby 2 razy nie losowały się te same
 //restart mapy 
 //timer
 //Odkrywanie sąsiednich pustych pól
 //style dla różnych rozmiarów plansz;
 
+//Pomysł
+//jeżeli kliknięto bombę za pierwszym razem to losuj jeszcze raz
 
+const mineIcon = '<i class="fas fa-bomb"></i>';
+const flagIcon = '<i class="fas fa-flag"></i>';
 
 const buttonGeneratorSmall = document.querySelector(".btnSmall"); 
 const buttonGeneratorLarge = document.querySelector(".btnLarge"); 
@@ -14,14 +17,21 @@ const header = document.querySelector("header");
 const flagSpan = document.querySelector(".flag");
 const title = document.querySelector(".title");
 const timeSpan = document.querySelector(".time");
-const popup = document.querySelector(".popup");
+const popupLost = document.querySelector(".popup-lost");
 const tryAgain = document.querySelector(".tryAgain");
 
 let fieldsWithMines = [];
 let nearbyMines = [];
+let fieldsToWin = 0;
+
+let visitedFields = [];
 
 let flags = 0;
 let time = 0;
+
+let firstClick = true;
+
+let size = 0;
 
 
 const generateBoard = (size , numberOfFlags) => {
@@ -40,6 +50,9 @@ const generateBoard = (size , numberOfFlags) => {
 
 	generateBoardFields(size);
 	generateBoardArray(size);
+
+	fieldsToWin = size*size - numberOfFlags;
+	console.log(fieldsToWin);
 
 	flags = numberOfFlags;
 	flagSpan.innerHTML = flags;
@@ -63,8 +76,10 @@ const generateBoardFields = (size) => {
 const generateBoardArray = (size) => {
 	for (let y = 0; y < size; y++) {
 		nearbyMines[y] = [];
+		visitedFields[y] = [];
 		for (let x = 0; x < size; x++) {
 			nearbyMines[y][x] = 0;
+			visitedFields[y][x] = 0;
 		}
 	}
 }
@@ -76,23 +91,132 @@ const addToArray = (size) => {
 			setNumbersOnFields(size);
 		}
 	})
-	console.log()
+	console.log();
 }
 
+
+
 const showField = (field) => {
+	console.log("show field");
+	console.log(field.dataset.x, field.dataset.y);
+	revealField(field.dataset.x, field.dataset.y);
 	field.classList.remove("hidden");
 	field.classList.add("shown");
 	field.style.background = "#f2f2f2";
+	fieldsToWin--;
 	if (nearbyMines[field.dataset.y][field.dataset.x] == 0) {
 		field.innerHTML = "";
-		
 	}
 	else if (nearbyMines[field.dataset.y][field.dataset.x] == -1) {
-		field.innerHTML = '<i class="fas fa-bomb"></i>';
+		field.innerHTML = mineIcon;
 	}
 	else {
 		field.innerHTML = nearbyMines[field.dataset.y][field.dataset.x];
+	} 
+}
+
+// function findField(x, y){
+// 	const fields = document.querySelectorAll(".field");
+// 	fields.forEach(field => {
+// 		if ((field.dataset.y == y) && (field.dataset.x == x)) {
+// 			console.log(field);
+// 			return field;
+// 		}
+// 	})
+// }
+
+
+function findField(x, y){
+	const fields = document.querySelectorAll(".field");
+	let fieldReturn = null;
+	fields.forEach(field => {
+		if ((field.dataset.y == y) && (field.dataset.x == x)) {
+			fieldReturn = field;
+		}
+	})
+	return fieldReturn;
+}
+
+
+const revealField = (xx, yy) => {
+	x = parseInt(xx);
+	y = parseInt(yy);
+	console.log(x, y);
+	// console.log(nearbyMines[y][x]);
+	size = 10;
+
+	
+	if (x<0) {
+		return;
 	}
+	if (y<0) {
+		return;
+	}
+	if (y>=size) {
+		return
+	}
+	if (x>=size) {
+		return
+	}
+	if (visitedFields[y][x] >= 8){ 
+		//return;
+	}
+	let field = findField(x, y);
+	if (field.classList.contains("shown")) {
+		return;
+	}
+	console.log(nearbyMines[y][x]);
+	console.log(visitedFields);
+	if (nearbyMines[y][x] == 0) {
+		
+
+		visitedFields[y][x]++;
+		//console.log("if",x, y);
+		field.classList.remove("hidden");
+		field.classList.add("shown");
+		field.style.background = "#f2f2f2";
+
+		//console.log("x:",x,"y", y);
+
+		console.log("1st",x,y);
+		revealField(x+1, y);
+
+
+	
+		//revealField(x-1, y-1);
+		//revealField(x-1, y+1);
+		console.log("2st",x,y);
+		revealField(x-1, y);
+		//revealField(x+1, y-1);
+		//revealField(x+1, y+1);
+		//revealField(x, y-1);
+		//revealField(x, y+1);
+
+
+		
+
+		
+	}
+	
+
+}
+
+const checkWin = () => {
+	const fields = document.querySelectorAll(".field");
+	let shownFields = 0;
+	fields.forEach(field => {
+		if (field.classList.contains("shown")) {
+			shownFields++;
+			console.log(shownFields);
+		}
+	})
+	if(fieldsToWin === shownFields) {
+		ShowPopupWin();
+	}
+}
+
+const ShowPopupWin = () => {
+	alert("Essa wygrana!");
 }
 
 // export function revealTile(board, tile) {
@@ -100,8 +224,8 @@ const showField = (field) => {
 // 	  return
 // 	}
 
-const showLoseScreen = () => {
-	popup.style.display = "flex";
+const showLooseScreen = () => {
+	popupLost.style.display = "flex";
 }
 
 const checkIfMineClicked = (field) => {
@@ -111,20 +235,28 @@ const checkIfMineClicked = (field) => {
 			fields.forEach(field => {
 				showField(field);
 			})
-			setTimeout(() => { showLoseScreen(); }, 1500);
+			setTimeout(() => { showLooseScreen(); }, 1500);
 			tryAgain.addEventListener("click" , () => {
-				popup.style.display = "none";
+				popupLost.style.display = "none";
 			})
 		}
 	}
 }
 
+// const addListeners = (button, size, numberOfFlags) => {
+// 	button.addEventListener("click", () => generateBoard(size, numberOfFlags));
+// 	button.addEventListener("click", () => drawMines(size, numberOfFlags));
+// 	button.addEventListener("click", addMinesToArray);
+// 	button.addEventListener("click", () => addToArray(size));
+
+// 	button.addEventListener("click", leftClick);
+// 	button.addEventListener("click", rightClick);
+// }
+
 const leftClick = () => {
 	const fields = document.querySelectorAll(".field");
 	fields.forEach(field => {
 		field.addEventListener("click", () => {
-			// checkNearbyMines(field.dataset.x, field.dataset.y);
-			// console.log(nearbyMines);
 			if (field.classList.contains("marked")){
 				flags++;
 				field.classList.remove("marked");
@@ -147,7 +279,7 @@ const rightClick = () => {
 			if ((field.classList.contains("hidden")) && (flags > 0) && !(field.classList.contains("marked"))) {
 				flags--;
 				flagSpan.innerHTML = flags;
-				field.innerHTML = '<i class="fas fa-flag"></i>';
+				field.innerHTML = flagIcon;
 				field.classList.add("marked");
 			}
 		})
@@ -174,13 +306,36 @@ const timer = () => {
 }, 1000); // update about every second
 }
 
+
 const drawMines = (boardSize, numberOfMines) => {
 	fieldsWithMines = [];
-	for (let index = 0; index < numberOfMines; index++) {
-		fieldsWithMines.push([Math.floor(Math.random() * boardSize), Math.floor(Math.random() * boardSize)]);	
+	fieldOfMinesHash = [];
+	while(fieldsWithMines.length !== numberOfMines) {
+		let minePosition = ([Math.floor(Math.random() * boardSize), Math.floor(Math.random() * boardSize)]); 
+		let hash = 1000*minePosition[0] + minePosition[1];
+		console.log(hash);
+		if (!fieldOfMinesHash.includes(hash)) {
+			fieldsWithMines.push(minePosition);
+			fieldOfMinesHash.push(hash);
+		}
 	}
 	console.log(fieldsWithMines);
 }
+
+// const drawMines = (boardSize, numberOfMines) => {
+// 	fieldsWithMines = [];
+// 	const mines = new Set();
+// 	while(mines.size !== numberOfMines) {
+// 		mines.add([Math.floor(Math.random() * boardSize), Math.floor(Math.random() * boardSize)]);
+// 	}
+// 	fieldsWithMines = [...mines];
+// 	console.log(fieldsWithMines);
+// }
+
+// for (let index = 0; index < numberOfMines; index++) {
+	// 	fieldsWithMines.push([Math.floor(Math.random() * boardSize), Math.floor(Math.random() * boardSize)]);	
+	// }
+
 
 const addMinesToArray = () => {
 	const fields = document.querySelectorAll(".field");
@@ -198,7 +353,7 @@ const checkMines = () => {
 	fields.forEach(field => {
 		for (let index = 0; index < fieldsWithMines.length; index++) {
 			if ((field.dataset.x == fieldsWithMines[index][0]) && (field.dataset.y == fieldsWithMines[index][1])) {
-				field.innerHTML = '<i class="fas fa-bomb"></i>';
+				field.innerHTML = mineIcon;
 			}
 		}
 	})
@@ -236,20 +391,27 @@ const setNumbersOnFields = (size) => {
 	}
 }
 
+
+
+
+
+
+
 const addListeners = (button, size, numberOfFlags) => {
+	size = size;
 	button.addEventListener("click", () => generateBoard(size, numberOfFlags));
 	button.addEventListener("click", () => drawMines(size, numberOfFlags));
 	button.addEventListener("click", addMinesToArray);
 	button.addEventListener("click", () => addToArray(size));
 
-	button.addEventListener("click", leftClick);
+	button.addEventListener("click", () => leftClick());
 	button.addEventListener("click", rightClick);
 }
 
 const addAnimations = (button) => {
 	button.addEventListener("click", () => {
 		TweenMax.staggerFrom(".wrapper div", 1, {
-			delay: .2, opacity: 0, y: 20, ease: Expo.easeInOut
+			delay: .1, opacity: 0, y: 20, ease: Expo.easeInOut
 		}, 0.005)
 	})
 }
@@ -257,7 +419,7 @@ const addAnimations = (button) => {
 addListeners(buttonGeneratorSmall, 10, 10);
 addListeners(tryAgain, 10, 10);
 
-addListeners(buttonGeneratorLarge, 15, 20);
+addListeners(buttonGeneratorLarge, 15, 30);
 
 addAnimations(buttonGeneratorSmall);
 addAnimations(tryAgain);
