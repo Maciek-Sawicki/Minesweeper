@@ -21,7 +21,7 @@ const popupLost = document.querySelector(".popup-lost");
 const tryAgain = document.querySelector(".tryAgain");
 
 let fieldsWithMines = [];
-let nearbyMines = [];
+let board = [];
 let fieldsToWin = 0;
 
 let visitedFields = [];
@@ -57,7 +57,7 @@ const generateBoard = (size , numberOfFlags) => {
 	flags = numberOfFlags;
 	flagSpan.innerHTML = flags;
 	header.style.display = "block";
-	console.log(nearbyMines);
+	console.log(board);
 }
 
 const generateBoardFields = (size) => {
@@ -75,10 +75,10 @@ const generateBoardFields = (size) => {
 
 const generateBoardArray = (size) => {
 	for (let y = 0; y < size; y++) {
-		nearbyMines[y] = [];
+		board[y] = [];
 		visitedFields[y] = [];
 		for (let x = 0; x < size; x++) {
-			nearbyMines[y][x] = 0;
+			board[y][x] = 0;
 			visitedFields[y][x] = 0;
 		}
 	}
@@ -87,7 +87,7 @@ const generateBoardArray = (size) => {
 const addToArray = (size) => {
 	const fields = document.querySelectorAll(".field");
 	fields.forEach(field => {
-		if (nearbyMines[field.dataset.y][field.dataset.x] != -1) {
+		if (board[field.dataset.y][field.dataset.x] != -1) {
 			setNumbersOnFields(size);
 		}
 	})
@@ -104,14 +104,14 @@ const showField = (field) => {
 	field.classList.add("shown");
 	field.style.background = "#f2f2f2";
 	fieldsToWin--;
-	if (nearbyMines[field.dataset.y][field.dataset.x] == 0) {
+	if (board[field.dataset.y][field.dataset.x] == 0) {
 		field.innerHTML = "";
 	}
-	else if (nearbyMines[field.dataset.y][field.dataset.x] == -1) {
+	else if (board[field.dataset.y][field.dataset.x] == -1) {
 		field.innerHTML = mineIcon;
 	}
 	else {
-		field.innerHTML = nearbyMines[field.dataset.y][field.dataset.x];
+		field.innerHTML = board[field.dataset.y][field.dataset.x];
 	} 
 }
 
@@ -126,7 +126,18 @@ const showField = (field) => {
 // }
 
 
-function findField(x, y){
+// function findField(x, y){
+// 	const fields = document.querySelectorAll(".field");
+// 	let fieldReturn = null;
+// 	fields.forEach(field => {
+// 		if ((field.dataset.y == y) && (field.dataset.x == x)) {
+// 			fieldReturn = field;
+// 		}
+// 	})
+// 	return fieldReturn;
+// }
+
+const findField = (x, y) =>{
 	const fields = document.querySelectorAll(".field");
 	let fieldReturn = null;
 	fields.forEach(field => {
@@ -138,38 +149,28 @@ function findField(x, y){
 }
 
 
+
 const revealField = (xx, yy) => {
 	x = parseInt(xx);
 	y = parseInt(yy);
 	console.log(x, y);
 	// console.log(nearbyMines[y][x]);
 	size = 10;
-
 	
-	if (x<0) {
-		return;
-	}
-	if (y<0) {
-		return;
-	}
-	if (y>=size) {
-		return
-	}
-	if (x>=size) {
-		return
-	}
-	if (visitedFields[y][x] >= 8){ 
-		//return;
-	}
+	if (x<0) return;
+	if (y<0) return;
+	if (y>=size) return;
+	if (x>=size) return;
+
+	//if (visitedFields[y][x] >= 8) return;
+	
 	let field = findField(x, y);
 	if (field.classList.contains("shown")) {
 		return;
 	}
-	console.log(nearbyMines[y][x]);
+	console.log(board[y][x]);
 	console.log(visitedFields);
-	if (nearbyMines[y][x] == 0) {
-		
-
+	if (board[y][x] == 0) {
 		visitedFields[y][x]++;
 		//console.log("if",x, y);
 		field.classList.remove("hidden");
@@ -180,9 +181,8 @@ const revealField = (xx, yy) => {
 
 		console.log("1st",x,y);
 		revealField(x+1, y);
-
-
-	
+		revealField(x+1, y+1);
+		revealField(x+1, y-1);
 		//revealField(x-1, y-1);
 		//revealField(x-1, y+1);
 		console.log("2st",x,y);
@@ -190,17 +190,12 @@ const revealField = (xx, yy) => {
 		//revealField(x+1, y-1);
 		//revealField(x+1, y+1);
 		//revealField(x, y-1);
-		//revealField(x, y+1);
-
-
-		
-
-		
+		//revealField(x, y+1);	
 	}
-	
-
 }
 
+
+//to fix
 const checkWin = () => {
 	const fields = document.querySelectorAll(".field");
 	let shownFields = 0;
@@ -219,11 +214,6 @@ const ShowPopupWin = () => {
 	alert("Essa wygrana!");
 }
 
-// export function revealTile(board, tile) {
-// 	if (tile.status !== TILE_STATUSES.HIDDEN) {
-// 	  return
-// 	}
-
 const showLooseScreen = () => {
 	popupLost.style.display = "flex";
 }
@@ -235,7 +225,7 @@ const checkIfMineClicked = (field) => {
 			fields.forEach(field => {
 				showField(field);
 			})
-			setTimeout(() => { showLooseScreen(); }, 1500);
+			setTimeout(() => { showLooseScreen(); }, 1000);
 			tryAgain.addEventListener("click" , () => {
 				popupLost.style.display = "none";
 			})
@@ -307,6 +297,8 @@ const timer = () => {
 }
 
 
+//draw mines and assign to positions on board
+
 const drawMines = (boardSize, numberOfMines) => {
 	fieldsWithMines = [];
 	fieldOfMinesHash = [];
@@ -322,27 +314,12 @@ const drawMines = (boardSize, numberOfMines) => {
 	console.log(fieldsWithMines);
 }
 
-// const drawMines = (boardSize, numberOfMines) => {
-// 	fieldsWithMines = [];
-// 	const mines = new Set();
-// 	while(mines.size !== numberOfMines) {
-// 		mines.add([Math.floor(Math.random() * boardSize), Math.floor(Math.random() * boardSize)]);
-// 	}
-// 	fieldsWithMines = [...mines];
-// 	console.log(fieldsWithMines);
-// }
-
-// for (let index = 0; index < numberOfMines; index++) {
-	// 	fieldsWithMines.push([Math.floor(Math.random() * boardSize), Math.floor(Math.random() * boardSize)]);	
-	// }
-
-
 const addMinesToArray = () => {
 	const fields = document.querySelectorAll(".field");
 	fields.forEach(field => {
 		for (let index = 0; index < fieldsWithMines.length; index++) {
 			if ((field.dataset.x == fieldsWithMines[index][0]) && (field.dataset.y == fieldsWithMines[index][1])) {
-				nearbyMines[field.dataset.y][field.dataset.x] = -1;
+				board[field.dataset.y][field.dataset.x] = -1;
 			}
 		}
 	})
@@ -359,8 +336,10 @@ const checkMines = () => {
 	})
 }
 
+//count nearby mines
+
 const nearbyFields = (x, y, size) => {
-    let tab = [];
+    let fieldsWithNeighbours = [];
     // checking 8 nearby fields
     for (let offsetX = -1; offsetX <= 1; offsetX++) {
 		for (let offsetY = -1; offsetY <= 1; offsetY++) {
@@ -369,33 +348,29 @@ const nearbyFields = (x, y, size) => {
 					x: offsetX + x,
 					y: offsetY + y,
 				};
-				tab.push(field);
+				fieldsWithNeighbours.push(field);
 			}
 		}
     }
-    return tab;
+    return fieldsWithNeighbours;
 }
 
 const setNumbersOnFields = (size) => {
     for (let y = 0; y < size; y++) {
 		for (let x = 0; x < size; x++) {
-			if (nearbyMines[y][x] !== -1) {
+			//if position != mine
+			if (board[y][x] !== -1) {
 				let number = 0;
 				const Fields = nearbyFields(x, y, size);
 				Fields.forEach((field) => {
-					if (nearbyMines[field.y]?.[field.x] === -1) number++;
+					//if mine add +1 to field position
+					if (board[field.y]?.[field.x] === -1) number++;
 				});
-				nearbyMines[y][x] = number;
+				board[y][x] = number;
 			}
 		}
 	}
 }
-
-
-
-
-
-
 
 const addListeners = (button, size, numberOfFlags) => {
 	size = size;
