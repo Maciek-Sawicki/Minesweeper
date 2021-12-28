@@ -31,7 +31,7 @@ let time = 0;
 
 let firstClick = true;
 
-let size = 0;
+// let size = 0;
 
 
 const generateBoard = (size , numberOfFlags) => {
@@ -45,15 +45,9 @@ const generateBoard = (size , numberOfFlags) => {
 		wrapper.classList.remove("sizeLarge");
 		wrapper.classList.add("sizeSmall");
 	}
-	// wrapper.classList.remove("sizeLarge");
-	// wrapper.classList.add("sizeSmall");
-
 	generateBoardFields(size);
-	generateBoardArray(size);
-
+	generateBoardArray(size); 
 	fieldsToWin = size*size - numberOfFlags;
-	console.log(fieldsToWin);
-
 	flags = numberOfFlags;
 	flagSpan.innerHTML = flags;
 	header.style.display = "block";
@@ -94,48 +88,73 @@ const addToArray = (size) => {
 	console.log();
 }
 
-
-
-const showField = (field) => {
-	console.log("show field");
-	console.log(field.dataset.x, field.dataset.y);
-	revealField(field.dataset.x, field.dataset.y);
+const whiteField = (field) => {
 	field.classList.remove("hidden");
 	field.classList.add("shown");
 	field.style.background = "#f2f2f2";
-	fieldsToWin--;
+
 	if (board[field.dataset.y][field.dataset.x] == 0) {
 		field.innerHTML = "";
 	}
+
 	else if (board[field.dataset.y][field.dataset.x] == -1) {
 		field.innerHTML = mineIcon;
 	}
 	else {
 		field.innerHTML = board[field.dataset.y][field.dataset.x];
-	} 
+	}
+
+
 }
 
-// function findField(x, y){
-// 	const fields = document.querySelectorAll(".field");
-// 	fields.forEach(field => {
-// 		if ((field.dataset.y == y) && (field.dataset.x == x)) {
-// 			console.log(field);
-// 			return field;
-// 		}
-// 	})
-// }
+const showField = (field, x,y, size) => {
+	// const xx = parseInt(field.dataset.x);
+	// const yy = parseInt(field.dataset.y);
+	const adjacentFields = nearbyFields(x, y, size);
+	console.log(adjacentFields);
+	
+	// field.classList.remove("hidden");
+	// field.classList.add("shown");
+	// field.style.background = "#f2f2f2";
 
-
-// function findField(x, y){
-// 	const fields = document.querySelectorAll(".field");
-// 	let fieldReturn = null;
-// 	fields.forEach(field => {
-// 		if ((field.dataset.y == y) && (field.dataset.x == x)) {
-// 			fieldReturn = field;
-// 		}
-// 	})
-// 	return fieldReturn;
-// }
+	if (board[field.dataset.y][field.dataset.x] == 0) {
+		
+		console.log("found", x, y);
+		adjacentFields.forEach(e => {
+			const pole = findField(e.x, e.y); 			
+				console.log("visited",e.x,e.y);
+				visitedFields[e.y][e.x] = 1;
+				console.log("V:",visitedFields);
+				// showField(pole, e.x, e.y, size);
+				whiteField(pole);
+			//}
+			
+		// })
+		// for (let index = 0; index < adjacentFields.length; index++) {
+		// 	const pole = findField(adjacentFields[index].x,adjacentFields[index].y); 
+		// 	console.log(index);
+		// 	console.log("visited",adjacentFields[index].x,adjacentFields[index].y); 
+		// 		visitedFields[adjacentFields[index].y][adjacentFields[index].x]++;
+		// 		console.log(visitedFields[adjacentFields[index].y][adjacentFields[index].x]);
+		// 		console.log("V:",visitedFields);
+		// 		// showField(pole, e.x, e.y, size);
+		// 		if (visitedFields[adjacentFields[index].y][adjacentFields[index].x] == 0) {
+		// 			whiteField(pole);
+		// 		} 
+				
+		// 		// showField(pole, pole.dataset.x, pole.dataset.y , size);
+		// }
+		field.innerHTML = "";
+		})
+	}
+	
+	else if (board[field.dataset.y][field.dataset.x] == -1) {
+		whiteField(field);
+	}
+	else {
+		whiteField(field);
+	} 
+}
 
 const findField = (x, y) =>{
 	const fields = document.querySelectorAll(".field");
@@ -147,8 +166,6 @@ const findField = (x, y) =>{
 	})
 	return fieldReturn;
 }
-
-
 
 const revealField = (xx, yy) => {
 	x = parseInt(xx);
@@ -165,9 +182,9 @@ const revealField = (xx, yy) => {
 	//if (visitedFields[y][x] >= 8) return;
 	
 	let field = findField(x, y);
-	if (field.classList.contains("shown")) {
-		return;
-	}
+	// if (field.classList.contains("shown")) {
+		// return;
+	// }
 	console.log(board[y][x]);
 	console.log(visitedFields);
 	if (board[y][x] == 0) {
@@ -194,36 +211,18 @@ const revealField = (xx, yy) => {
 	}
 }
 
-
-//to fix
-const checkWin = () => {
-	const fields = document.querySelectorAll(".field");
-	let shownFields = 0;
-	fields.forEach(field => {
-		if (field.classList.contains("shown")) {
-			shownFields++;
-			console.log(shownFields);
-		}
-	})
-	if(fieldsToWin === shownFields) {
-		ShowPopupWin();
-	}
-}
-
-const ShowPopupWin = () => {
-	alert("Essa wygrana!");
-}
-
 const showLooseScreen = () => {
 	popupLost.style.display = "flex";
 }
+
+
 
 const checkIfMineClicked = (field) => {
 	const fields = document.querySelectorAll(".field");
 	for (let index = 0; index < fieldsWithMines.length; index++) {
 		if ((field.dataset.x == fieldsWithMines[index][0]) && (field.dataset.y == fieldsWithMines[index][1])) {
 			fields.forEach(field => {
-				showField(field);
+				whiteField(field);
 			})
 			setTimeout(() => { showLooseScreen(); }, 1000);
 			tryAgain.addEventListener("click" , () => {
@@ -233,20 +232,11 @@ const checkIfMineClicked = (field) => {
 	}
 }
 
-// const addListeners = (button, size, numberOfFlags) => {
-// 	button.addEventListener("click", () => generateBoard(size, numberOfFlags));
-// 	button.addEventListener("click", () => drawMines(size, numberOfFlags));
-// 	button.addEventListener("click", addMinesToArray);
-// 	button.addEventListener("click", () => addToArray(size));
-
-// 	button.addEventListener("click", leftClick);
-// 	button.addEventListener("click", rightClick);
-// }
-
-const leftClick = () => {
+const leftClick = (size) => {
 	const fields = document.querySelectorAll(".field");
+	const tab = [];
 	fields.forEach(field => {
-		field.addEventListener("click", () => {
+		field.addEventListener("click", (e) => {
 			if (field.classList.contains("marked")){
 				flags++;
 				field.classList.remove("marked");
@@ -254,12 +244,18 @@ const leftClick = () => {
 				flagSpan.innerHTML = flags;
 			}
 			else {
-				showField(field);
+				const x = parseInt(field.dataset.x);
+				const y = parseInt(field.dataset.y);
+				//const nf = nearbyFields(field.dataset.x, field.dataset.y, size);
+				// console.log(nf);
+				showField(field, x, y, size);
 			}
 			setTimeout(() => { checkIfMineClicked(field) }, 500);
 		})
 	})
 }
+
+
 
 const rightClick = () => {
 	const fields = document.querySelectorAll(".field");
@@ -276,27 +272,6 @@ const rightClick = () => {
 	})
 }
 
-const startTimerOnce = () => {
-	if (!timeToggle) timer();
-}
-
-// const startTimer = () => {
-// 	timer = true;
-// 	time++;
-// 	timeSpan.innerHTML = time;
-// }
-
-const timer = () => {
-	clearInterval();
-	timeToggle = false;
-	const start = Date.now();
-	setInterval(function() {
-    	let delta = Date.now() - start; // milliseconds elapsed since start
-    	timeSpan.innerHTML = Math.floor(delta / 1000); // in seconds
-}, 1000); // update about every second
-}
-
-
 //draw mines and assign to positions on board
 
 const drawMines = (boardSize, numberOfMines) => {
@@ -305,8 +280,7 @@ const drawMines = (boardSize, numberOfMines) => {
 	while(fieldsWithMines.length !== numberOfMines) {
 		let minePosition = ([Math.floor(Math.random() * boardSize), Math.floor(Math.random() * boardSize)]); 
 		let hash = 1000*minePosition[0] + minePosition[1];
-		console.log(hash);
-		if (!fieldOfMinesHash.includes(hash)) {
+		if (!fieldOfMinesHash.includes(hash))  {
 			fieldsWithMines.push(minePosition);
 			fieldOfMinesHash.push(hash);
 		}
@@ -352,6 +326,7 @@ const nearbyFields = (x, y, size) => {
 			}
 		}
     }
+	// console.log(fieldsWithNeighbours);
     return fieldsWithNeighbours;
 }
 
@@ -372,14 +347,28 @@ const setNumbersOnFields = (size) => {
 	}
 }
 
+// const teste = () => {
+// 	const fields = document.querySelectorAll(".field");
+// 	let helper;
+// 	const tab = [];
+// 	fields.forEach(field => {
+// 		helper = [field.dataset.x, field.dataset.y];
+// 		console.log(helper);
+// 		tab.push(helper);	
+// 	})
+// }
+
+
+// const test = nearbyFields(4,4,10);
+// console.log(test);
+
 const addListeners = (button, size, numberOfFlags) => {
-	size = size;
 	button.addEventListener("click", () => generateBoard(size, numberOfFlags));
 	button.addEventListener("click", () => drawMines(size, numberOfFlags));
 	button.addEventListener("click", addMinesToArray);
 	button.addEventListener("click", () => addToArray(size));
 
-	button.addEventListener("click", () => leftClick());
+	button.addEventListener("click", () => leftClick(size));
 	button.addEventListener("click", rightClick);
 }
 
@@ -402,6 +391,45 @@ addAnimations(buttonGeneratorLarge);
 
 
 
+
+//to fix
+const checkWin = () => {
+	const fields = document.querySelectorAll(".field");
+	let shownFields = 0;
+	fields.forEach(field => {
+		if (field.classList.contains("shown")) {
+			shownFields++;
+			console.log(shownFields);
+		}
+	})
+	if(fieldsToWin === shownFields) {
+		ShowPopupWin();
+	}
+}
+
+const ShowPopupWin = () => {
+	alert(" wygrana!");
+}
+
+const startTimerOnce = () => {
+	if (!timeToggle) timer();
+}
+
+// const startTimer = () => {
+// 	timer = true;
+// 	time++;
+// 	timeSpan.innerHTML = time;
+// }
+
+const timer = () => {
+	clearInterval();
+	timeToggle = false;
+	const start = Date.now();
+	setInterval(function() {
+    	let delta = Date.now() - start; // milliseconds elapsed since start
+    	timeSpan.innerHTML = Math.floor(delta / 1000); // in seconds
+}, 1000); // update about every second
+}
 
 
 
