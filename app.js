@@ -29,6 +29,7 @@ let firstClick = true;
 // let size = 0;
 
 const generateBoard = (size , numberOfFlags) => {
+	clearInterval(time);
 	title.style.display = "none";
 	wrapper.textContent = "";
 	if (size == 15) {
@@ -46,6 +47,7 @@ const generateBoard = (size , numberOfFlags) => {
 	flagSpan.innerHTML = flags;
 	header.style.display = "block";
 	console.log(board);
+	
 }
 
 const generateBoardFields = (size) => {
@@ -105,16 +107,16 @@ const showField = (field, x,y, size) => {
 	// const xx = parseInt(field.dataset.x);
 	// const yy = parseInt(field.dataset.y);
 	const adjacentFields = nearbyFields(x, y, size);
-	console.log(adjacentFields);
+	// console.log(adjacentFields);
 
 	if (board[field.dataset.y][field.dataset.x] == 0) {
 		
-		console.log("found", x, y);
+		// console.log("found", x, y);
 		adjacentFields.forEach(e => {
 			const pole = findField(e.x, e.y); 			
-				console.log("visited",e.x,e.y);
+				// console.log("visited",e.x,e.y);
 				visitedFields[e.y][e.x] = 1;
-				console.log("V:",visitedFields);
+				// console.log("V:",visitedFields);
 				setStylesOnFields(pole);
 	
 		field.innerHTML = "";
@@ -164,14 +166,14 @@ const checkIfMineClicked = (field) => {
 }
 
 const leftClick = (size) => {
+	firstClick = true;
 	const fields = document.querySelectorAll(".field");
 	fields.forEach(field => {
 		field.addEventListener("click", () => {
 			if (firstClick) {
-				console.log("zegar");
 				const start = clock();
 				time = setInterval(start, 1000);
-				
+				firstClick = false;
 			}
 			
 			if (field.classList.contains("marked")){
@@ -281,11 +283,11 @@ const setNumbersOnFields = (size) => {
 }
 
 const clock = () => {
-	firstClick = true;
+	// firstClick = true;
 	let seconds = 0;
 	timeSpan.innerHTML = "00";
 	const timer = () => {
-		firstClick = false;
+		
 		seconds++;
 		if (seconds < 10) {
 			timeSpan.innerHTML = "0" + seconds;	
@@ -300,15 +302,14 @@ const clock = () => {
 
 
 const addListeners = (button, size, numberOfFlags) => {
-	
-	// clearInterval(clock);
+	clearInterval(time);
 	button.addEventListener("click", () => generateBoard(size, numberOfFlags));
 	button.addEventListener("click", () => drawMines(size, numberOfFlags));
 	button.addEventListener("click", addMinesToArray);
 	button.addEventListener("click", () => addToArray(size));
 
 	button.addEventListener("click", clock);
-	firstClick = true;
+	
 	button.addEventListener("click", () => leftClick(size));
 	button.addEventListener("click", rightClick);
 }
@@ -322,10 +323,11 @@ const addAnimations = (button) => {
 }
 
 addListeners(buttonGeneratorSmall, 10, 10);
+addListeners(buttonGeneratorLarge, 15, 30);
 addListeners(tryAgainS, 10, 10);
 addListeners(tryAgainL, 15, 30);
 
-addListeners(buttonGeneratorLarge, 15, 30);
+
 
 addAnimations(buttonGeneratorSmall);
 addAnimations(tryAgainS);
