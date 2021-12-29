@@ -96,7 +96,7 @@ body {
 header {
 	color: white;
 	font-size: 40px;
-	margin: 40px;
+	margin: 30px;
 	display: none;
 }
 
@@ -140,7 +140,7 @@ header span {
 	justify-content: center;
 	align-items: center;
 	height: auto;
-	width: 400px;
+	width: 500px;
 	height: 300px;
 	vertical-align: middle;
 	/* width: 60%; */
@@ -154,16 +154,12 @@ header span {
 	font-size: 40px;
 }
 
-.popup-lost .btn {
-	background-color: #020659;
+.buttonsWrapper {
+	display: flex;
+	justify-content: space-around;
 }
 
-/* .trigger_popup_fricc {
-	cursor: pointer;
-	font-size: 20px;
-	margin: 20px;
-	display: inline-block;
-	font-weight: bold;
-} */
-
-/* Popup box BEGIN */
+.popup-lost .btn {
+	background-color: #020659;
+	margin: 20px 30px;
+}
