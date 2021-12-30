@@ -1,10 +1,10 @@
-/* 
-#0511F2
-#020659
-#4B53F2
-#8D92F2
-#F2F2F2 
-*/
+:root {
+	--lightBlue: #8D92F2;
+	--blue: #0511F2;
+	--darkBlue: #020659;
+	--offWhite: #F2F2F2;
+	--black: #000;
+}
 
 * {
 	margin: 0;
@@ -15,10 +15,8 @@
 }
 
 body {
-	background-color: #020659;
+	background-color: var(--darkBlue);
 }
-
-
 
 .game-wrapper {
 	display: flex;
@@ -29,7 +27,7 @@ body {
 
 .title {
 	font-size: 80px;
-	color: #f2f2f2;
+	color: var(--offWhite);
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -41,7 +39,7 @@ body {
 .author {
 	position: absolute;
 	font-size: 16px;
-	color: #8D92F2;
+	color: var(--lightBlue);
 	bottom: 20px;
 	left: 50%;
 	transform: translateX(-50%);
@@ -67,34 +65,34 @@ body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: #8D92F2;
-	border: 1px solid #020659;
+	background-color: var(--lightBlue);
+	border: 1px solid var(--darkBlue);
 	font-size: 24px;
 	font-weight: bold;
 }
 
 .field i {
 	font-size: 30px;
-	color: white;
+	color: var(--offWhite);
 }
 
 .shown i {
-	color: #000;
+	color: var(--black);
 }
 
 .btn {
-	background-color: #8D92F2;
+	background-color: var(--lightBlue);
 	padding: 5px 10px;
 	font-size: 26px;
 	border-radius: 8px;
-	color: #f2f2f2;
+	color: var(--offWhite);
 	border: none;
 	margin: 10px;
 	cursor: pointer;
 }
 
 header {
-	color: white;
+	color: var(--offWhite);
 	font-size: 40px;
 	margin: 30px;
 	display: none;
@@ -105,10 +103,9 @@ header span {
 	margin-right: 10px;
 }
 
-/* Popup box BEGIN */
-.popup-lost {
+.popup-lost,
+.popup-win {
 	background: rgba(2, 6, 89, 0.6);
-	/* cursor: pointer; */
 	display: none;
 	align-items: center;
 	justify-content: center;
@@ -120,21 +117,15 @@ header span {
 	z-index: 10000;
 }
 
-.popup-lost .helper {
-	/* display: inline-block; */
+.popup-lost .helper,
+.popup-win .helper {
 	height: 100%;
 	vertical-align: middle;
 }
 
-/* #0511F2
-#020659
-#4B53F2
-#8D92F2
-#F2F2F2  */
-
-.popup-lost>div {
-	background-color: #8D92F2;
-	/* box-shadow: 10px 10px 60px #555; */
+.popup-lost>div,
+.popup-win>div {
+	background-color: var(--lightBlue);
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -143,14 +134,14 @@ header span {
 	width: 600px;
 	height: 300px;
 	vertical-align: middle;
-	/* width: 60%; */
 	position: relative;
 	border-radius: 8px;
 	padding: 15px 5%;
 }
 
-.lost {
-	color: #f2f2f2;
+.lost,
+.win {
+	color: var(--offWhite);
 	font-size: 40px;
 }
 
@@ -159,7 +150,17 @@ header span {
 	justify-content: space-around;
 }
 
-.popup-lost .btn {
-	background-color: #020659;
+.popup-lost .btn,
+.popup-win .btn {
+	background-color: var(--darkBlue);
 	margin: 20px 30px;
+}
+
+.timeWrapper {
+	color: var(--offWhite);
+	font-size: 40px;
+}
+
+.timeWrapper i {
+	margin-right: 10px;
 }
