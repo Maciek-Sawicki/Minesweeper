@@ -1,11 +1,8 @@
-//TODO
-//style dla różnych rozmiarów plansz;
-
 const mineIcon = '<i class="fas fa-bomb"></i>';
 const flagIcon = '<i class="fas fa-flag"></i>';
 
-const buttonGeneratorSmall = document.querySelector(".btnSmall"); 
-const buttonGeneratorLarge = document.querySelector(".btnLarge"); 
+const buttonGeneratorSmall = document.querySelector(".btnSmall");
+const buttonGeneratorLarge = document.querySelector(".btnLarge");
 const wrapper = document.querySelector(".wrapper");
 const header = document.querySelector("header");
 const flagSpan = document.querySelector(".flag");
@@ -28,33 +25,29 @@ let time;
 let firstClick = true;
 
 
-
-const generateBoard = (size , numberOfFlags) => {
+const generateBoard = (size, numberOfFlags) => {
 	clearInterval(time);
 	title.style.display = "none";
 	wrapper.textContent = "";
 	if (size == 15) {
 		wrapper.classList.remove("sizeSmall");
 		wrapper.classList.add("sizeLarge");
-	}
-	else {
+	} else {
 		wrapper.classList.remove("sizeLarge");
 		wrapper.classList.add("sizeSmall");
 	}
 	generateBoardFields(size);
-	generateBoardArray(size); 
-	fieldsToWin = (size*size) - numberOfFlags;
+	generateBoardArray(size);
+	fieldsToWin = (size * size) - numberOfFlags;
 	flags = numberOfFlags;
 	flagSpan.innerHTML = flags;
 	header.style.display = "block";
-	// console.log(board);
-	
 }
 
 const generateBoardFields = (size) => {
 	const div = document.createElement("div");
 	div.classList.add("field", "hidden");
-	div.oncontextmenu="rightClick";
+	div.oncontextmenu = "rightClick";
 	for (let y = 0; y < size; y++) {
 		div.dataset.y = y;
 		for (let x = 0; x < size; x++) {
@@ -91,37 +84,11 @@ const setStylesOnFields = (field) => {
 
 	if (board[field.dataset.y][field.dataset.x] == 0) {
 		field.innerHTML = "";
-	}
-
-	else if (board[field.dataset.y][field.dataset.x] == -1) {
+	} else if (board[field.dataset.y][field.dataset.x] == -1) {
 		field.innerHTML = mineIcon;
-	}
-	else {
+	} else {
 		field.innerHTML = board[field.dataset.y][field.dataset.x];
 	}
-}
-
-const showField = (field, x,y, size) => {
-	const adjacentFields = nearbyFields(x, y, size);
-
-	if (board[field.dataset.y][field.dataset.x] == 0) {
-		// console.log("found", x, y);
-		adjacentFields.forEach(e => {
-			const pole = findField(e.x, e.y); 	
-			// console.log("visited",e.x,e.y);
-			visitedFields[e.y][e.x] = 1;
-			// console.log("V:",visitedFields);
-			setStylesOnFields(pole);
-			field.innerHTML = "";
-		})
-	}
-	
-	else if (board[field.dataset.y][field.dataset.x] == -1) {
-		setStylesOnFields(field);
-	}
-	else {
-		setStylesOnFields(field);
-	} 
 }
 
 const findField = (x, y) => {
@@ -147,14 +114,39 @@ const checkIfMineClicked = (field) => {
 				setStylesOnFields(field);
 			})
 			clearInterval(time);
-			setTimeout(() => { showLooseScreen(); }, 1000);
-			tryAgainS.addEventListener("click" , () => {
+			setTimeout(() => {
+				showLooseScreen();
+			}, 1000);
+			tryAgainS.addEventListener("click", () => {
 				popupLost.style.display = "none";
 			})
-			tryAgainL.addEventListener("click" , () => {
+			tryAgainL.addEventListener("click", () => {
 				popupLost.style.display = "none";
 			})
 		}
+	}
+}
+
+const showField = (field, x, y, size) => {
+	if (visitedFields[y][x] === 1) {
+		return;
+	}
+
+	visitedFields[y][x] = 1;
+
+	if (board[y][x] === 0) {
+		setStylesOnFields(field);
+
+		const adjacentFields = nearbyFields(x, y, size);
+		adjacentFields.forEach((e) => {
+			const pole = findField(e.x, e.y);
+			showField(pole, e.x, e.y, size);
+		});
+	} else if (board[y][x] === -1) {
+		setStylesOnFields(field);
+	} else {
+		setStylesOnFields(field);
+		field.innerHTML = board[y][x];
 	}
 }
 
@@ -168,23 +160,27 @@ const leftClick = (size) => {
 				time = setInterval(start, 1000);
 				firstClick = false;
 			}
-			
-			if (field.classList.contains("marked")){
+
+			if (field.classList.contains("marked")) {
 				flags++;
 				field.classList.remove("marked");
 				field.innerHTML = "";
 				flagSpan.innerHTML = flags;
-			}
-			else {
+			} else {
 				const x = parseInt(field.dataset.x);
 				const y = parseInt(field.dataset.y);
 				showField(field, x, y, size);
-				setTimeout(() => { checkIfMineClicked(field) }, 500);
+				setTimeout(() => {
+					checkIfMineClicked(field)
+				}, 500);
 			}
-			setTimeout(() => { checkWin() }, 500);
+			setTimeout(() => {
+				checkWin()
+			}, 500);
 		})
 	})
 }
+
 
 const rightClick = () => {
 	const fields = document.querySelectorAll(".field");
@@ -206,10 +202,10 @@ const rightClick = () => {
 const drawMines = (boardSize, numberOfMines) => {
 	fieldsWithMines = [];
 	fieldOfMinesHash = [];
-	while(fieldsWithMines.length !== numberOfMines) {
-		let minePosition = ([Math.floor(Math.random() * boardSize), Math.floor(Math.random() * boardSize)]); 
-		let hash = 1000*minePosition[0] + minePosition[1];
-		if (!fieldOfMinesHash.includes(hash))  {
+	while (fieldsWithMines.length !== numberOfMines) {
+		let minePosition = ([Math.floor(Math.random() * boardSize), Math.floor(Math.random() * boardSize)]);
+		let hash = 1000 * minePosition[0] + minePosition[1];
+		if (!fieldOfMinesHash.includes(hash)) {
 			fieldsWithMines.push(minePosition);
 			fieldOfMinesHash.push(hash);
 		}
@@ -242,9 +238,9 @@ const checkMines = () => {
 //count nearby mines
 
 const nearbyFields = (x, y, size) => {
-    let fieldsWithNeighbours = [];
-    // checking 8 nearby fields
-    for (let offsetX = -1; offsetX <= 1; offsetX++) {
+	let fieldsWithNeighbours = [];
+	// checking 8 nearby fields
+	for (let offsetX = -1; offsetX <= 1; offsetX++) {
 		for (let offsetY = -1; offsetY <= 1; offsetY++) {
 			if (offsetX + x < size && offsetY + y < size && offsetY + y >= 0 && offsetX + x >= 0) {
 				const field = {
@@ -254,13 +250,13 @@ const nearbyFields = (x, y, size) => {
 				fieldsWithNeighbours.push(field);
 			}
 		}
-    }
+	}
 	// console.log(fieldsWithNeighbours);
-    return fieldsWithNeighbours;
+	return fieldsWithNeighbours;
 }
 
 const setNumbersOnFields = (size) => {
-    for (let y = 0; y < size; y++) {
+	for (let y = 0; y < size; y++) {
 		for (let x = 0; x < size; x++) {
 			//if position != mine
 			if (board[y][x] !== -1) {
@@ -281,15 +277,14 @@ const clock = () => {
 	let seconds = 0;
 	timeSpan.innerHTML = "00";
 	const timer = () => {
-		
+
 		seconds++;
 		if (seconds < 10) {
-			timeSpan.innerHTML = "0" + seconds;	
-		}
-		else {
+			timeSpan.innerHTML = "0" + seconds;
+		} else {
 			timeSpan.innerHTML = seconds;
 		}
-		
+
 	}
 	return timer;
 }
@@ -302,7 +297,7 @@ const checkWin = () => {
 			shownFields++;
 		}
 	})
-	if(fieldsToWin === shownFields) {
+	if (fieldsToWin === shownFields) {
 		clearInterval(time);
 		ShowPopupWin();
 	}
@@ -322,7 +317,7 @@ const addListeners = (button, size, numberOfFlags) => {
 	button.addEventListener("click", () => addToArray(size));
 
 	button.addEventListener("click", clock);
-	
+
 	button.addEventListener("click", () => leftClick(size));
 	button.addEventListener("click", rightClick);
 }
@@ -330,7 +325,10 @@ const addListeners = (button, size, numberOfFlags) => {
 const addAnimations = (button) => {
 	button.addEventListener("click", () => {
 		TweenMax.staggerFrom(".wrapper div", 1, {
-			delay: .1, opacity: 0, y: 20, ease: Expo.easeInOut
+			delay: .1,
+			opacity: 0,
+			y: 20,
+			ease: Expo.easeInOut
 		}, 0.005)
 	})
 }
@@ -351,11 +349,9 @@ addAnimations(tryAgainL);
 addAnimations(winS);
 addAnimations(winL);
 
-winS.addEventListener("click" , () => {
+winS.addEventListener("click", () => {
 	popupWin.style.display = "none";
 })
-winL.addEventListener("click" , () => {
+winL.addEventListener("click", () => {
 	popupWin.style.display = "none";
 })
-
-
